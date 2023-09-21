@@ -1,4 +1,4 @@
-import { Router, request } from 'express';
+import { Router, request, response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { HTTP_BAD_REQUEST } from '../constants/http_status';
 import { OrderModel } from '../models/order.model';
@@ -73,4 +73,13 @@ async function getNewOrderForCurrentUser(request: any) {
     status: OrderStatus.NEW,
   });
 }
+
+router.get(
+  '/track/:id',
+  asyncHandler(async (request, response) => {
+    const order = await OrderModel.findById(request.params.id);
+    response.send(order);
+  })
+);
+
 export default router;
