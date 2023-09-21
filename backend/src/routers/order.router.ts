@@ -33,4 +33,19 @@ router.post(
   })
 );
 
+router.get(
+  '/newOrderForCurrentUser',
+  asyncHandler(async (request: any, response) => {
+    const order = await OrderModel.findOne({
+      user: request.user.id,
+      status: OrderStatus.NEW,
+    });
+    if (order) {
+      response.send(order);
+    } else {
+      response.status(HTTP_BAD_REQUEST).send();
+    }
+  })
+);
+
 export default router;
