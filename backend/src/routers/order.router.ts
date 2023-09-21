@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, request } from 'express';
 import asyncHandler from 'express-async-handler';
 import { HTTP_BAD_REQUEST } from '../constants/http_status';
 import { OrderModel } from '../models/order.model';
@@ -48,4 +48,29 @@ router.get(
   })
 );
 
+router.post(
+  '/pay',
+  asyncHandler(async (request: any, response) => {
+    const { paymentId } = request.body;
+    const order = await getNewOrderForCurrentUser(request);
+
+    if (!order) {
+      request.status(HTTP_BAD_REQUEST).send('Order Not Found!');
+      return;
+    }
+
+    order.paymentId = paymentId;
+    order.status = OrderStatus.PAYED;
+    await order.save();
+
+    response.send(order._id);
+  })
+);
+
+async function getNewOrderForCurrentUser(request: any) {
+  return await OrderModel.findOne({
+    user: request.user.id,
+    status: OrderStatus.NEW,
+  });
+}
 export default router;
